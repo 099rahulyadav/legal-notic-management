@@ -1,11 +1,11 @@
-"use client";  // 👈 Add this line at the top
+"use client";
 
-import { useAppDispatch, useAppSelector } from "../store/hooks";
-import { increment, decrement } from "../store/slices";
+import { useAppDispatch, useAppSelector } from "@/store/hooks"; 
+import { increment, decrement } from "@/store/counterSlice";
 
 export default function Home() {
-  const count = useAppSelector((state) => state.counter.value);
   const dispatch = useAppDispatch();
+  const count = useAppSelector((state) => state.counter?.value || 0); 
 
   return (
     <div>

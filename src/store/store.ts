@@ -1,12 +1,27 @@
+// import { configureStore } from "@reduxjs/toolkit";
+// import formReducer from "./formSlice";
+
+// export const store = configureStore({
+//   reducer: {
+//     form: formReducer,
+//   },
+// });
+
+// export type RootState = ReturnType<typeof store.getState>;
+// export type AppDispatch = typeof store.dispatch;
+
+
+
 import { configureStore } from "@reduxjs/toolkit";
-import counterReducer from "./slices";  // Import the counter reducer
+import formReducer from "./formSlice"; 
+import counterReducer from "./counterSlice"; // ✅ Add this line
 
 export const store = configureStore({
   reducer: {
-    counter: counterReducer,
+    form: formReducer,
+    counter: counterReducer, // ✅ Add counter slice to store
   },
 });
 
-// These help TypeScript understand Redux types
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
