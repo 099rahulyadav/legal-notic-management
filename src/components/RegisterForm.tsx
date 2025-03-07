@@ -63,23 +63,23 @@ export default function RegisterForm() {
     }
   }, [isMobile]);
 //=======================================================================================
-  useEffect(() => {
-    const firstName = watch("firstName");
-    const lastName = watch("lastName");
-    const fullName = watch("fullName");
-  
-    if (isMobile) {
-      if (firstName || lastName) {
-        setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim());
-      }
-    } else {
-      if (fullName) {
-        const [first, ...last] = fullName.split(" ");
-        setValue("firstName", first || "");
-        setValue("lastName", last.join(" ") || "");
-      }
+useEffect(() => {
+  const firstName = watch("firstName");
+  const lastName = watch("lastName");
+  const fullName = watch("fullName");
+
+  if (isMobile) {
+    if (firstName || lastName) {
+      setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim(), { shouldValidate: true });
     }
-  }, [isMobile, setValue, watch]);
+  } else {
+    if (fullName) {
+      const [first, ...last] = fullName.split(" ");
+      setValue("firstName", first || "", { shouldValidate: true });
+      setValue("lastName", last.join(" ") || "", { shouldValidate: true });
+    }
+  }
+}, [isMobile, setValue, watch, initialized]);
    //====================================================================================
 
   const onSubmit = async (data:Record<string, unknown>) => {
@@ -106,6 +106,7 @@ export default function RegisterForm() {
         setMessage(result.error || "Something went wrong");
       }
     } catch (error) {
+      console.error("Form submission error:", error);
       setMessage("Error submitting form");
     }
   };
