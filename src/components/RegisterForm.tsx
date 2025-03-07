@@ -62,8 +62,27 @@ export default function RegisterForm() {
       }
     }
   }, [isMobile]);
+//=======================================================================================
+  useEffect(() => {
+    const firstName = watch("firstName");
+    const lastName = watch("lastName");
+    const fullName = watch("fullName");
+  
+    if (isMobile) {
+      if (firstName || lastName) {
+        setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim());
+      }
+    } else {
+      if (fullName) {
+        const [first, ...last] = fullName.split(" ");
+        setValue("firstName", first || "");
+        setValue("lastName", last.join(" ") || "");
+      }
+    }
+  }, [isMobile, setValue, watch]);
+   //====================================================================================
 
-  const onSubmit = async (data:any) => {
+  const onSubmit = async (data:Record<string, unknown>) => {
     const formData = {
       fullName: isMobile ? data.fullName : `${data.firstName} ${data.lastName}`.trim(),
       email: data.email,
