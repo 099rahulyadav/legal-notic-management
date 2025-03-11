@@ -1,6 +1,17 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
-// Async action for submitting form data
+const loadFromLocalStorage = () => {
+  if (typeof window !== "undefined") {
+    const storedUserData = localStorage.getItem("userData");
+    const storedToken = localStorage.getItem("token");
+    return {
+      userData: storedUserData ? JSON.parse(storedUserData) : null,
+      token: storedToken || null,
+    };
+  }
+  return { userData: null, token: null };
+};
+
 export const submitForm = createAsyncThunk(
   "form/submitForm",
   async (formData: Record<string, unknown>, { rejectWithValue }) => {
@@ -13,47 +24,37 @@ export const submitForm = createAsyncThunk(
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Something went wrong");
-      return data; // Return success response
+
+      return data;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
   }
 );
 
-// Define Redux state structure
 interface FormState {
-  fullName: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  orderDetails: string;
-  file: string | null;
+  userData: Record<string, unknown> | null;
+  token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
 const initialState: FormState = {
-  fullName: "",
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  orderDetails: "",
-  file: null,
+  ...loadFromLocalStorage(),
   status: "idle",
   error: null,
 };
 
-// Create Redux slice with extraReducers to handle API response
 const formSlice = createSlice({
   name: "form",
   initialState,
   reducers: {
-    updateForm: (state, action: PayloadAction<Partial<FormState>>) => {
-      return { ...state, ...action.payload };
+    resetForm: (state) => {
+      state.userData = null;
+      state.token = null;
+      localStorage.removeItem("userData");
+      localStorage.removeItem("token");
     },
-    resetForm: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -61,8 +62,13 @@ const formSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(submitForm.fulfilled, (state) => {
+      .addCase(submitForm.fulfilled, (state, action) => {
         state.status = "succeeded";
+        state.userData = action.payload["Received Data"];
+        state.token = action.payload.token;
+
+        localStorage.setItem("userData", JSON.stringify(action.payload["Received Data"]));
+        localStorage.setItem("token", action.payload.token);
       })
       .addCase(submitForm.rejected, (state, action) => {
         state.status = "failed";
@@ -71,5 +77,5 @@ const formSlice = createSlice({
   },
 });
 
-export const { updateForm, resetForm } = formSlice.actions;
+export const { resetForm } = formSlice.actions;
 export default formSlice.reducer;
