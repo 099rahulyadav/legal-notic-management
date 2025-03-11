@@ -470,5 +470,41 @@
       "file": "Resume (2).pdf"
     },
     "token": "yJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT"
+  },
+  {
+    "status": "success",
+    "message": "User registered successfully",
+    "Received Data": {
+      "fullName": "Rahul Yadav",
+      "email": "099rahul.yadav@gmail.com",
+      "phone": "09161466490",
+      "orderDetails": "SWDAEFSGRDTHYFJGKU",
+      "file": "Resume (2).pdf"
+    },
+    "token": "yJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT"
+  },
+  {
+    "status": "success",
+    "message": "User registered successfully",
+    "Received Data": {
+      "fullName": "Rahul Yadav",
+      "email": "099rahul.yadav@gmail.com",
+      "phone": "09161466490",
+      "orderDetails": "SWDAEFSGRDTHYFJGKU",
+      "file": "Resume (2).pdf"
+    },
+    "token": "yJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT"
+  },
+  {
+    "status": "success",
+    "message": "User registered successfully",
+    "Received Data": {
+      "fullName": "Kajal Kumar",
+      "email": "sonarawat74401@gmail.com",
+      "phone": "07088271260",
+      "orderDetails": "SWDAEFSGRDTHYFJGKU",
+      "file": "Click to upload"
+    },
+    "token": "yJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT"
   }
 ]
