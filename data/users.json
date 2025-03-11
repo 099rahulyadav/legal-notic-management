@@ -68,5 +68,85 @@
     "phone": "46468458988",
     "orderDetails": "mn hbgcf",
     "file": "Click to upload"
+  },
+  {
+    "fullName": "rishub singh",
+    "email": "rib@gmail.com",
+    "phone": "46468458988",
+    "orderDetails": "gfchjkk",
+    "file": "Click to upload"
+  },
+  {
+    "fullName": "Rahul Yadav",
+    "email": "099rahul.yadav@gmail.com",
+    "phone": "09161466490",
+    "orderDetails": "yuhiuhuih",
+    "file": "Click to upload"
+  },
+  {
+    "fullName": "Rex  man",
+    "email": "0dwediwe@gmail.com",
+    "phone": "684894848949",
+    "orderDetails": "dwkjdbwbdbwiubfiub",
+    "file": "Click to upload"
+  },
+  {
+    "fullName": "Rahul Yadav",
+    "email": "099rahul.yadav@gmail.com",
+    "phone": "09161466490",
+    "orderDetails": "wqeqrwrw2",
+    "file": "Resume (2).pdf"
+  },
+  {
+    "fullName": "Rahul Yadav",
+    "email": "099rahul.yadav@gmail.com",
+    "phone": "091614664905446",
+    "orderDetails": "dqdwejfwejfwej",
+    "file": "Resume (2).pdf"
+  },
+  {
+    "fullName": "Rahul Yadav",
+    "email": "099rahul.yadav@gmail.com",
+    "phone": "09161466490",
+    "orderDetails": "dw",
+    "file": "Resume (2).pdf"
+  },
+  {
+    "fullName": "Rahuljkdsncn Yadav",
+    "email": "099rahul.yadav@gmail.com",
+    "phone": "09161466490",
+    "orderDetails": "kldsncdldnscn",
+    "file": "Resume (2).pdf"
+  },
+  {
+    "fullName": "Rahul Yadav",
+    "email": "099rahul.yadav@gmail.com",
+    "phone": "09161466490",
+    "orderDetails": "eqefwqf",
+    "file": "Resume (2).pdf"
+  },
+  {
+    "status": "success",
+    "message": "User registered successfully",
+    "Received Data": {
+      "fullName": "Rahul Yadav",
+      "email": "099rahul.yadav@gmail.com",
+      "phone": "091614664905",
+      "orderDetails": "544454qwfqfeqfw",
+      "file": "Resume.pdf"
+    },
+    "token": "yJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT"
+  },
+  {
+    "status": "success",
+    "message": "User registered successfully",
+    "Received Data": {
+      "fullName": "Rahul Yadav",
+      "email": "099rahul.yadav@gmail.com",
+      "phone": "091614664905",
+      "orderDetails": "544454qwfqfeqfw",
+      "file": "Resume.pdf"
+    },
+    "token": "yJjbGllbnRfaWQiOiJZekV6TUdkb01ISm5PSEJpT"
   }
 ]

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState, AppDispatch } from "@/store/store";
+import { updateForm, resetForm, submitForm } from "@/store/formSlice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -17,6 +20,10 @@ const formSchema = z.object({
 });
 
 export default function RegisterForm() {
+  const dispatch = useDispatch<AppDispatch>();
+  const formState = useSelector((state: RootState) => state.form);
+  const { status, error } = formState;
+
   const {
     register,
     handleSubmit,
@@ -28,16 +35,15 @@ export default function RegisterForm() {
   });
 
   const [fileName, setFileName] = useState("Click to upload");
-  const [message, setMessage] = useState("");
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState(false); // ✅ Default to `false`
   const [initialized, setInitialized] = useState(false);
 
+  // ✅ Fix: Handle `window` inside `useEffect`
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    const checkScreenSize = () => setIsMobile(window.innerWidth < 768);
+    checkScreenSize(); // ✅ Run once when component mounts
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
   useEffect(() => {
@@ -61,112 +67,41 @@ export default function RegisterForm() {
         setValue("lastName", last.join(" ") || "");
       }
     }
-  }, [isMobile]);
-//=======================================================================================
-useEffect(() => {
-  const firstName = watch("firstName");
-  const lastName = watch("lastName");
-  const fullName = watch("fullName");
+  }, [isMobile, setValue, watch, initialized]);
 
-  if (isMobile) {
-    if (firstName || lastName) {
-      setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim(), { shouldValidate: true });
-    }
-  } else {
-    if (fullName) {
-      const [first, ...last] = fullName.split(" ");
-      setValue("firstName", first || "", { shouldValidate: true });
-      setValue("lastName", last.join(" ") || "", { shouldValidate: true });
-    }
-  }
-}, [isMobile, setValue, watch, initialized]);
-   //====================================================================================
-
-  const onSubmit = async (data:Record<string, unknown>) => {
+  const onSubmit = (data: any) => {
     const formData = {
       fullName: isMobile ? data.fullName : `${data.firstName} ${data.lastName}`.trim(),
       email: data.email,
       phone: data.phone,
       orderDetails: data.orderDetails,
-      file: fileName,
+      file: fileName, // ✅ File name is included
     };
-
-    try {
-      const response = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        setMessage("Registration successful!");
-      } else {
-        setMessage(result.error || "Something went wrong");
-      }
-    } catch (error) {
-      console.error("Form submission error:", error);
-      setMessage("Error submitting form");
-    }
+  
+    dispatch(updateForm(formData)); // ✅ Save form data in Redux
+    dispatch(submitForm(formData)); // ✅ Correct way to dispatch async thunk
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 p-6">
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="bg-white p-10 rounded-xl shadow-xl w-full max-w-3xl space-y-6 border border-gray-200"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="bg-white p-10 rounded-xl shadow-xl w-full max-w-3xl space-y-6 border border-gray-200">
         <h2 className="text-2xl font-bold text-center text-gray-700 mb-6">Get a Quote Now</h2>
         <p className="text-lg font-bold text-center text-gray-500 hidden md:block">Get a Quote Immediately Upon Form Submission</p>
-        
+
         {isMobile ? (
-          <div className="grid grid-cols-1 gap-6">
-            <input
-              {...register("fullName")}
-              placeholder="Full Name"
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
-            />
-            <p className="text-red-500 text-sm">{errors.fullName?.message}</p>
-          </div>
+          <input {...register("fullName")} placeholder="Full Name" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
         ) : (
-          <div className="grid grid-cols-2 gap-6">
-            <input
-              {...register("firstName")}
-              placeholder="First Name"
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
-            />
-            <input
-              {...register("lastName")}
-              placeholder="Last Name"
-              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+          <>
+            <input {...register("firstName")} placeholder="First Name" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+            <input {...register("lastName")} placeholder="Last Name" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+          </>
         )}
-        
-        <input
-          {...register("email")}
-          type="email"
-          placeholder="Email Address"
-          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
-        />
-        <p className="text-red-500 text-sm">{errors.email?.message}</p>
-        
-        <input
-          {...register("phone")}
-          type="tel"
-          placeholder="Phone"
-          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
-        />
-        <p className="text-red-500 text-sm">{errors.phone?.message}</p>
-        
-        <textarea
-          {...register("orderDetails")}
-          placeholder="Order details"
-          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500"
-        />
-        <p className="text-red-500 text-sm">{errors.orderDetails?.message}</p>
-        
+
+        <input {...register("email")} type="email" placeholder="Email Address" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+        <input {...register("phone")} type="tel" placeholder="Phone" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+        <textarea {...register("orderDetails")} placeholder="Order details" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+
+        {/* ✅ File Upload Section (Restored) */}
         <label className="flex flex-col items-center justify-center gap-3 border-dashed border-2 border-gray-300 p-6 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
           <CloudUpload className="w-8 h-8 text-blue-500" />
           <span className="text-gray-600">{fileName}</span>
@@ -174,17 +109,16 @@ useEffect(() => {
             type="file"
             {...register("file")}
             className="hidden"
-            onChange={(e) =>
-              setFileName(e.target.files?.[0] ? e.target.files[0].name : "Click to upload")
-            }
+            onChange={(e) => setFileName(e.target.files?.[0]?.name || "Click to upload")}
           />
         </label>
 
-        <button type="submit" className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-full hover:from-blue-600 hover:to-indigo-700 shadow-lg text-lg font-semibold">
-          Send Request
+        <button type="submit" className="w-full bg-blue-500 text-white py-3 rounded-lg">
+          {status === "loading" ? "Submitting..." : "Send Request"}
         </button>
 
-        {message && <p className="text-center mt-4 text-green-600">{message}</p>}
+        {error && <p className="text-center mt-4 text-red-600">{error}</p>}
+        {status === "succeeded" && <p className="text-center mt-4 text-green-600">Registration successful!</p>}
       </form>
     </div>
   );
