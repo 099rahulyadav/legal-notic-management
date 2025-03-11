@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
-import { updateForm, resetForm, submitForm } from "@/store/formSlice";
+import { submitForm } from "@/store/formSlice";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { CloudUpload } from "lucide-react";
+import { useRouter } from "next/navigation"; 
 
 const formSchema = z.object({
   fullName: z.string().optional(),
@@ -21,8 +22,8 @@ const formSchema = z.object({
 
 export default function RegisterForm() {
   const dispatch = useDispatch<AppDispatch>();
-  const formState = useSelector((state: RootState) => state.form);
-  const { status, error } = formState;
+  const { status } = useSelector((state: RootState) => state.form);
+  const router = useRouter();
 
   const {
     register,
@@ -35,39 +36,31 @@ export default function RegisterForm() {
   });
 
   const [fileName, setFileName] = useState("Click to upload");
-  const [isMobile, setIsMobile] = useState(false); // ✅ Default to `false`
-  const [initialized, setInitialized] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // ✅ Fix: Handle `window` inside `useEffect`
-  useEffect(() => {
-    const checkScreenSize = () => setIsMobile(window.innerWidth < 768);
-    checkScreenSize(); // ✅ Run once when component mounts
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
+  const checkScreenSize = useCallback(() => {
+    setIsMobile(window.innerWidth < 768);
   }, []);
 
   useEffect(() => {
-    if (!initialized) {
-      setInitialized(true);
-      return;
-    }
-    
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, [checkScreenSize]); 
+
+  useEffect(() => {
     const firstName = watch("firstName");
     const lastName = watch("lastName");
     const fullName = watch("fullName");
 
-    if (isMobile) {
-      if (firstName || lastName) {
-        setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim());
-      }
-    } else {
-      if (fullName) {
-        const [first, ...last] = fullName.split(" ");
-        setValue("firstName", first || "");
-        setValue("lastName", last.join(" ") || "");
-      }
+    if (isMobile && (firstName || lastName)) {
+      setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim(), { shouldValidate: true });
+    } else if (!isMobile && fullName) {
+      const [first, ...last] = fullName.split(" ");
+      setValue("firstName", first || "", { shouldValidate: true });
+      setValue("lastName", last.join(" ") || "", { shouldValidate: true });
     }
-  }, [isMobile, setValue, watch, initialized]);
+  }, [isMobile, setValue, watch]);
 
   const onSubmit = (data: any) => {
     const formData = {
@@ -75,12 +68,19 @@ export default function RegisterForm() {
       email: data.email,
       phone: data.phone,
       orderDetails: data.orderDetails,
-      file: fileName, // ✅ File name is included
+      file: fileName,
     };
-  
-    dispatch(updateForm(formData)); // ✅ Save form data in Redux
-    dispatch(submitForm(formData)); // ✅ Correct way to dispatch async thunk
+
+    dispatch(submitForm(formData));
   };
+
+  useEffect(() => {
+    if (status === "succeeded") {
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
+    }
+  }, [status, router]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 p-6">
@@ -100,8 +100,6 @@ export default function RegisterForm() {
         <input {...register("email")} type="email" placeholder="Email Address" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
         <input {...register("phone")} type="tel" placeholder="Phone" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
         <textarea {...register("orderDetails")} placeholder="Order details" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
-
-        {/* ✅ File Upload Section (Restored) */}
         <label className="flex flex-col items-center justify-center gap-3 border-dashed border-2 border-gray-300 p-6 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
           <CloudUpload className="w-8 h-8 text-blue-500" />
           <span className="text-gray-600">{fileName}</span>
@@ -117,8 +115,9 @@ export default function RegisterForm() {
           {status === "loading" ? "Submitting..." : "Send Request"}
         </button>
 
-        {error && <p className="text-center mt-4 text-red-600">{error}</p>}
-        {status === "succeeded" && <p className="text-center mt-4 text-green-600">Registration successful!</p>}
+        {status === "succeeded" && (
+          <p className="text-center mt-4 text-green-600">Registration successful! Redirecting...</p>
+        )}
       </form>
     </div>
   );
