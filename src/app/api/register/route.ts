@@ -18,7 +18,7 @@ const filePath = path.join(dataFolderPath, "users.json");
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    console.log("Received Data:", body);
+    // console.log("Received Data:", body);
 
     const parsedData = registerSchema.safeParse(body);
     if (!parsedData.success) {

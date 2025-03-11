@@ -46,7 +46,7 @@ export default function RegisterForm() {
     checkScreenSize();
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
-  }, [checkScreenSize]); 
+  }, [checkScreenSize]);
 
   useEffect(() => {
     const firstName = watch("firstName");
@@ -74,13 +74,13 @@ export default function RegisterForm() {
     dispatch(submitForm(formData));
   };
 
-  useEffect(() => {
-    if (status === "succeeded") {
-      setTimeout(() => {
+  const handleGoToDashboard = () => {
+    setTimeout(() => {
+      if (localStorage.getItem("token")) {
         router.push("/dashboard");
-      }, 500);
-    }
-  }, [status, router]);
+      }
+    }, 300); 
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 p-6">
@@ -100,6 +100,7 @@ export default function RegisterForm() {
         <input {...register("email")} type="email" placeholder="Email Address" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
         <input {...register("phone")} type="tel" placeholder="Phone" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
         <textarea {...register("orderDetails")} placeholder="Order details" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+
         <label className="flex flex-col items-center justify-center gap-3 border-dashed border-2 border-gray-300 p-6 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
           <CloudUpload className="w-8 h-8 text-blue-500" />
           <span className="text-gray-600">{fileName}</span>
@@ -116,7 +117,15 @@ export default function RegisterForm() {
         </button>
 
         {status === "succeeded" && (
-          <p className="text-center mt-4 text-green-600">Registration successful! Redirecting...</p>
+          <div className="flex flex-col items-center mt-4">
+            <p className="text-center text-green-600 mb-2">Registration successful!</p>
+            <button
+              onClick={handleGoToDashboard}
+              className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-600 transition"
+            >
+              Go to Dashboard
+            </button>
+          </div>
         )}
       </form>
     </div>
