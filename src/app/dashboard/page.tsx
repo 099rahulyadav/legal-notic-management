@@ -2,8 +2,10 @@
 
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
+  const router = useRouter();
 
   const storedUserData = typeof window !== "undefined" ? localStorage.getItem("userData") : null;
   const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
@@ -18,39 +20,54 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-indigo-600 p-6">
-        <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-2xl">
-          <h1 className="text-3xl font-bold text-center text-gray-700 mb-4">Dashboard</h1>
-          <p className="text-center text-gray-500 mb-6">Your registration details</p>
+      <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-500 via-indigo-600 to-purple-700 p-6">
+        <div className="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-2xl transform hover:scale-105 transition duration-300">
+          <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">
+            🎉 Welcome, {userData?.fullName}!
+          </h1>
+          <p className="text-center text-gray-500 mb-6">Here are your details:</p>
 
-          <div className="border-t border-gray-300 pt-4">
-            <div className="space-y-3">
-              <p><strong className="text-gray-700">Full Name:</strong> {userData?.fullName}</p>
-              <p><strong className="text-gray-700">Email:</strong> {userData?.email}</p>
-              <p><strong className="text-gray-700">Phone:</strong> {userData?.phone}</p>
-              <p><strong className="text-gray-700">Order Details:</strong> {userData?.orderDetails}</p>
-              {userData?.file ? (
-                <p>
-                  <strong className="text-gray-700">Uploaded File:</strong> 
-                  <span className="text-blue-500"> {userData.file}</span>
-                </p>
-              ) : (
-                <p className="text-gray-500">No file uploaded</p>
-              )}
-
-              <p className="text-blue-600"><strong>Token:</strong> {token}</p>
+          <div className="relative bg-gradient-to-r from-indigo-500 to-purple-600 p-6 rounded-2xl shadow-lg text-white">
+            <div className="absolute top-2 right-2 bg-white text-indigo-600 px-3 py-1 rounded-full text-xs font-semibold">
+              Verified ✔
             </div>
+            <p className="text-lg font-semibold">
+              ✉️ <strong>Email:</strong> {userData?.email}
+            </p>
+            <p className="text-lg font-semibold">
+              📞 <strong>Phone:</strong> {userData?.phone}
+            </p>
+            <p className="text-lg font-semibold">
+              📝 <strong>Order Details:</strong> {userData?.orderDetails}
+            </p>
+
+            {userData?.file ? (
+              <p className="text-lg font-semibold">
+                📎 <strong>Uploaded File:</strong>
+                <span className="text-yellow-300"> {userData.file}</span>
+              </p>
+            ) : (
+              <p className="text-lg font-semibold text-gray-300">📎 No file uploaded</p>
+            )}
           </div>
-          <div className="mt-6 text-center">
+
+          <div className="mt-4 text-center">
+            <p className="text-blue-600 font-semibold">🔑 Your Token:</p>
+            <p className="bg-gray-100 p-2 rounded-lg text-gray-700 font-mono text-sm">
+              {token}
+            </p>
+          </div>
+
+          <div className="mt-6 flex justify-center">
             <button
               onClick={() => {
                 localStorage.removeItem("userData");
                 localStorage.removeItem("token");
-                window.location.href = "/register";
+                router.push("/register");
               }}
-              className="bg-red-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-red-600 transition"
+              className="bg-red-500 text-white px-6 py-2 rounded-full shadow-lg hover:bg-red-600 transition duration-300"
             >
-              Logout
+              Logout 🚪
             </button>
           </div>
         </div>
@@ -58,3 +75,6 @@ export default function Dashboard() {
     </ProtectedRoute>
   );
 }
+
+
+

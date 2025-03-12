@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/store/store";
 import { submitForm } from "@/store/formSlice";
@@ -14,15 +14,15 @@ const formSchema = z.object({
   fullName: z.string().optional(),
   firstName: z.string().optional(),
   lastName: z.string().optional(),
-  email: z.string().email("Invalid email address"),
+  email: z.string().email("Please enter a valid email address"),
   phone: z.string().min(10, "Phone number must be at least 10 digits"),
-  orderDetails: z.string().min(1, "Submit Your Order Information - Item Name, Decoration Size, Quantity, Due Date and any other details are required"),
+  orderDetails: z.string().min(1, "Please enter your order details"),
   file: z.any(),
 });
 
 export default function RegisterForm() {
   const dispatch = useDispatch<AppDispatch>();
-  const { status } = useSelector((state: RootState) => state.form);
+  const { status, userData } = useSelector((state: RootState) => state.form);
   const router = useRouter();
 
   const {
@@ -38,29 +38,33 @@ export default function RegisterForm() {
   const [fileName, setFileName] = useState("Click to upload");
   const [isMobile, setIsMobile] = useState(false);
 
-  const checkScreenSize = useCallback(() => {
-    setIsMobile(window.innerWidth < 768);
+  useEffect(() => {
+    const checkScreenSize = () => setIsMobile(window.innerWidth < 768);
+
+    if (typeof window !== "undefined") {
+      checkScreenSize();
+      window.addEventListener("resize", checkScreenSize);
+      return () => window.removeEventListener("resize", checkScreenSize);
+    }
   }, []);
 
   useEffect(() => {
-    checkScreenSize();
-    window.addEventListener("resize", checkScreenSize);
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, [checkScreenSize]);
-
-  useEffect(() => {
+    const fullName = watch("fullName");
     const firstName = watch("firstName");
     const lastName = watch("lastName");
-    const fullName = watch("fullName");
 
-    if (isMobile && (firstName || lastName)) {
-      setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim(), { shouldValidate: true });
-    } else if (!isMobile && fullName) {
-      const [first, ...last] = fullName.split(" ");
-      setValue("firstName", first || "", { shouldValidate: true });
-      setValue("lastName", last.join(" ") || "", { shouldValidate: true });
+    if (isMobile) {
+      if (firstName || lastName) {
+        setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim(), { shouldValidate: true });
+      }
+    } else {
+      if (fullName) {
+        const [first, ...last] = fullName.split(" ");
+        setValue("firstName", first || "", { shouldValidate: true });
+        setValue("lastName", last.join(" ") || "", { shouldValidate: true });
+      }
     }
-  }, [isMobile, setValue, watch]);
+  }, [isMobile, watch("fullName"), watch("firstName"), watch("lastName"), setValue]);
 
   const onSubmit = (data: any) => {
     const formData = {
@@ -79,7 +83,7 @@ export default function RegisterForm() {
       if (localStorage.getItem("token")) {
         router.push("/dashboard");
       }
-    }, 300); 
+    }, 300);
   };
 
   return (
@@ -89,17 +93,37 @@ export default function RegisterForm() {
         <p className="text-lg font-bold text-center text-gray-500 hidden md:block">Get a Quote Immediately Upon Form Submission</p>
 
         {isMobile ? (
-          <input {...register("fullName")} placeholder="Full Name" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+          <>
+            <input {...register("fullName", { required: "Full Name is required" })} 
+              placeholder="Full Name" 
+              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-gray-800 placeholder-gray-400" />
+            {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName.message}</p>}
+          </>
         ) : (
           <>
-            <input {...register("firstName")} placeholder="First Name" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
-            <input {...register("lastName")} placeholder="Last Name" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+            <input {...register("firstName", { required: "First Name is required" })} 
+              placeholder="First Name" 
+              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-gray-800 placeholder-gray-400" />
+            {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName.message}</p>}
+
+            <input {...register("lastName", { required: "Last Name is required" })} 
+              placeholder="Last Name" 
+              className="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-gray-800 placeholder-gray-400" />
+            {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName.message}</p>}
           </>
         )}
 
-        <input {...register("email")} type="email" placeholder="Email Address" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
-        <input {...register("phone")} type="tel" placeholder="Phone" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
-        <textarea {...register("orderDetails")} placeholder="Order details" className="w-full p-3 border border-gray-300 rounded-lg shadow-sm" />
+        <input {...register("email")} type="email" placeholder="Email Address" 
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-gray-800 placeholder-gray-400" />
+        {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+
+        <input {...register("phone")} type="tel" placeholder="Phone" 
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-gray-800 placeholder-gray-400" />
+        {errors.phone && <p className="text-red-500 text-sm">{errors.phone.message}</p>}
+
+        <textarea {...register("orderDetails")} placeholder="Order details" 
+          className="w-full p-3 border border-gray-300 rounded-lg shadow-sm text-gray-800 placeholder-gray-400" />
+        {errors.orderDetails && <p className="text-red-500 text-sm">{errors.orderDetails.message}</p>}
 
         <label className="flex flex-col items-center justify-center gap-3 border-dashed border-2 border-gray-300 p-6 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
           <CloudUpload className="w-8 h-8 text-blue-500" />
@@ -119,10 +143,8 @@ export default function RegisterForm() {
         {status === "succeeded" && (
           <div className="flex flex-col items-center mt-4">
             <p className="text-center text-green-600 mb-2">Registration successful!</p>
-            <button
-              onClick={handleGoToDashboard}
-              className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-600 transition"
-            >
+            <button onClick={handleGoToDashboard}
+              className="bg-green-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-green-600 transition">
               Go to Dashboard
             </button>
           </div>
