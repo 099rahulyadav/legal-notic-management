@@ -32,7 +32,7 @@ export const submitForm = createAsyncThunk(
   }
 );
 
-interface FormState {
+export interface FormState {
   userData: Record<string, unknown> | null;
   token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
