@@ -22,7 +22,7 @@ const formSchema = z.object({
 
 export default function RegisterForm() {
   const dispatch = useDispatch<AppDispatch>();
-  const { status, userData } = useSelector((state: RootState) => state.form);
+  const { status} = useSelector((state: RootState) => state.form);
   const router = useRouter();
 
   const {
@@ -48,25 +48,25 @@ export default function RegisterForm() {
     }
   }, []);
 
-  useEffect(() => {
-    const fullName = watch("fullName");
-    const firstName = watch("firstName");
-    const lastName = watch("lastName");
+const fullName = watch("fullName");
+const firstName = watch("firstName");
+const lastName = watch("lastName");
 
-    if (isMobile) {
-      if (firstName || lastName) {
-        setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim(), { shouldValidate: true });
-      }
-    } else {
-      if (fullName) {
-        const [first, ...last] = fullName.split(" ");
-        setValue("firstName", first || "", { shouldValidate: true });
-        setValue("lastName", last.join(" ") || "", { shouldValidate: true });
-      }
+useEffect(() => {
+  if (isMobile) {
+    if (firstName || lastName) {
+      setValue("fullName", `${firstName || ""} ${lastName || ""}`.trim(), { shouldValidate: true });
     }
-  }, [isMobile, watch("fullName"), watch("firstName"), watch("lastName"), setValue]);
+  } else {
+    if (fullName) {
+      const [first, ...last] = fullName.split(" ");
+      setValue("firstName", first || "", { shouldValidate: true });
+      setValue("lastName", last.join(" ") || "", { shouldValidate: true });
+    }
+  }
+}, [isMobile, fullName, firstName, lastName, setValue]);
 
-  const onSubmit = (data: any) => {
+  const onSubmit = (data: Record<string, unknown>) => {
     const formData = {
       fullName: isMobile ? data.fullName : `${data.firstName} ${data.lastName}`.trim(),
       email: data.email,

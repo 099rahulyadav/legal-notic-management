@@ -16,7 +16,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (storedUserData) setUserData(JSON.parse(storedUserData));
     if (storedToken) setToken(storedToken);
-  }, []);
+  }, [storedToken, storedUserData]);
 
   return (
     <ProtectedRoute>

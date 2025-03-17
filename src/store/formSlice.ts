@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 
 const loadFromLocalStorage = () => {
   if (typeof window !== "undefined") {
@@ -26,8 +26,11 @@ export const submitForm = createAsyncThunk(
       if (!response.ok) throw new Error(data.error || "Something went wrong");
 
       return data;
-    } catch (error: any) {
-      return rejectWithValue(error.message);
+    } catch (error: unknown)  {
+      if (error instanceof Error) {
+        return rejectWithValue(error.message);
+      }
+      return rejectWithValue("An unknown error occurred");
     }
   }
 );
